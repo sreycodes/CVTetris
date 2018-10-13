@@ -31,6 +31,7 @@ width = int(NSScreen.mainScreen().frame().size.width)
 
 FPS = 25
 WINDOWWIDTH_TOTAL = 480
+
 WINDOWWIDTH_TETRIS = 280
 WINDOWWIDTH_SIDE = WINDOWWIDTH_TOTAL-WINDOWWIDTH_TETRIS
 WINDOWHEIGHT = 520
@@ -178,7 +179,7 @@ def runGame():
         frame = cv2.flip(frame, 1)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, greenLower, greenUpper)
-        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.erode(mask, None, iterations=1)
         mask = cv2.dilate(mask, None, iterations=2)
         radius = -1
         x, y = width / 2, height / 2
