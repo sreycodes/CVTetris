@@ -10,7 +10,7 @@ greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
 pts = deque(maxlen=12)
 direction = "ND"
-height = 600
+height = 320
 width = 600
 
 
@@ -62,8 +62,6 @@ while True:
         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
         cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-    print(find_move([x, y]))
-
     # print(pts)
     # if type(center) == tuple:
     #     pts.appendleft(center)
@@ -83,5 +81,6 @@ while True:
 
     if key == ord("E"):
         break
+
 cap.release()
 cv2.destroyAllWindows()

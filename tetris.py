@@ -9,6 +9,21 @@
 
 import random, pygame, sys
 from pygame.locals import *
+import numpy as np
+import cv2
+import imutils
+import time
+from collections import deque
+from datetime import datetime
+
+
+cap = cv2.VideoCapture(0)
+greenLower = (29, 86, 6)
+greenUpper = (64, 255, 255)
+pts = deque(maxlen=12)
+direction = "ND"
+height = 320
+width = 600
 
 FPS = 25
 WINDOWWIDTH_TOTAL = 480
@@ -70,13 +85,41 @@ CURRENTPIECE_STARTY = 1
 NEXTPIECE_STARTX = 19 ## requires tweaking if window dimensions are changed
 NEXTPIECE_STARTY = 6 ## requires tweaking if window dimensions are changed
 
+lastRotated = datetime.strptime('Jan 1 1970  00:00PM', '%b %d %Y %I:%M%p')
+
+def find_move(coords):
+    '''Calculates the direction of motion
+
+        Arguments: Two center variables used to determine direction of motion
+
+        Returns: A string specifying the direction of motion'''
+    # check if translation in x or y direction
+    # print(coords)
+    if(len(coords) == 0):
+        return "NONE"
+    elif(coords[0] < width / 4):
+        return "LEFT"
+    elif(coords[0] > 3 * width / 4):
+        return "RIGHT"
+    elif(coords[1] > 3 * height / 4):
+        return "DOWN"
+    elif(coords[1] < height / 4):
+        return "UP"
+    else:
+        return "NONE"
+
 def main():
 
     # main function
 
     global FPSCLOCK, DISPLAYSURF, BASICFONT
 
+    # print("Works 1")
+
     pygame.init()
+
+    # print("Works 1")
+
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH_TOTAL, WINDOWHEIGHT))
     BASICFONT = pygame.font.SysFont('Courier New', 24)
@@ -92,6 +135,8 @@ def main():
 def runGame():
 
     # run the game
+
+    # print("Works 5")
 
     pieces = [[],[]]
 
@@ -109,6 +154,41 @@ def runGame():
     speedUp = False
 
     while True: 
+
+        grabbed, frame = cap.read()
+        frame = imutils.resize(frame, width=width, height=height)
+        frame = cv2.flip(frame, 1)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, greenLower, greenUpper)
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
+        radius = -1
+        x, y = width / 2, height / 2
+
+        cv2.imshow("Frame", frame)
+        key = cv2.waitKey(1) & 0xFF
+
+        # print("Works 1")
+
+        coords = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # print("Works 2")
+
+        if len(coords) > 0:
+            circle_1 = max(coords, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(circle_1)
+            M = cv2.moments(circle_1)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+        # print("Works 3")
+
+        if radius > 10:
+            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+            cv2.circle(frame, center, 5, (0, 0, 255), -1)
+
+        # print("Works 4")
 
         pieceMoveCounter += 1
 
@@ -130,31 +210,50 @@ def runGame():
             movePiece(pieces[CURRENTPIECE], RIGHT)
 
         if speedUp:
-            speedFactor = 3
+            speedFactor = 100
         else:
             speedFactor = 1
 
-        for event in pygame.event.get(): 
-            if event.type == QUIT:
-                terminate()
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    terminate()
-                if event.key == K_SPACE:
-                    pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
-                if event.key == K_LEFT or event.key == K_a:
-                    movePieceLeft = True
-                if event.key == K_RIGHT or event.key == K_d:
-                    movePieceRight = True
-                if event.key == K_DOWN or event.key == K_s:
-                    speedUp = True
-            elif event.type == KEYUP:
-                if event.key == K_LEFT or event.key == K_a:
-                    movePieceLeft = False
-                if event.key == K_RIGHT or event.key == K_d:
-                    movePieceRight = False
-                if event.key == K_DOWN or event.key == K_s:
-                    speedUp = False
+        move = find_move([x, y])
+        print(move)
+
+        if move == "UP":
+            if(datetime.now() - lastRotated < 1):
+                pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
+                lastRotated = datetime.now()
+        elif move == "LEFT":
+            movePieceLeft = True
+        elif move == "RIGHT":
+            movePieceRight = True
+        elif move == "DOWN":
+            speedUp = True
+            FPSCLOCK.tick(FPS*10)
+        else:
+            movePieceLeft = False
+            movePieceRight = False
+            speedUp = False
+
+        # for event in pygame.event.get(): 
+        #     if event.type == QUIT:
+        #         terminate()
+        #     elif event.type == KEYDOWN:
+        #         if event.key == K_ESCAPE:
+        #             terminate()
+        #         if event.key == K_SPACE:
+        #             pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
+        #         if event.key == K_LEFT or event.key == K_a:
+        #             movePieceLeft = True
+        #         if event.key == K_RIGHT or event.key == K_d:
+        #             movePieceRight = True
+        #         if event.key == K_DOWN or event.key == K_s:
+        #             speedUp = True
+        #     elif event.type == KEYUP:
+        #         if event.key == K_LEFT or event.key == K_a:
+        #             movePieceLeft = False
+        #         if event.key == K_RIGHT or event.key == K_d:
+        #             movePieceRight = False
+        #         if event.key == K_DOWN or event.key == K_s:
+        #             speedUp = False
 
         fullRowYs = checkFullRow(pile)
         score = removeAndScoreRows(fullRowYs, pile)
@@ -173,6 +272,14 @@ def runGame():
         drawPieceOrPile(pile)
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
+
+        time.sleep(0.2)
+
+        # if key == ord("E"):
+        #     break
+
+# cap.release()
+# cv2.destroyAllWindows()
 
 def generatePiece():
 
