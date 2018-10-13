@@ -16,7 +16,6 @@ import time
 from collections import deque
 from datetime import datetime
 
-
 cap = cv2.VideoCapture(0)
 greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
@@ -227,7 +226,7 @@ def runGame():
             movePieceRight = True
         elif move == "DOWN":
             speedUp = True
-            FPSCLOCK.tick(FPS*10)
+            # FPSCLOCK.tick(FPS*10)
         else:
             movePieceLeft = False
             movePieceRight = False
