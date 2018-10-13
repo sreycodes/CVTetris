@@ -85,8 +85,6 @@ CURRENTPIECE_STARTY = 1
 NEXTPIECE_STARTX = 19 ## requires tweaking if window dimensions are changed
 NEXTPIECE_STARTY = 6 ## requires tweaking if window dimensions are changed
 
-lastRotated = datetime.strptime('Jan 1 1970  00:00PM', '%b %d %Y %I:%M%p')
-
 def find_move(coords):
     '''Calculates the direction of motion
 
@@ -152,6 +150,7 @@ def runGame():
     movePieceLeft = False
     movePieceRight = False
     speedUp = False
+    lastRotated = datetime.now()
 
     while True: 
 
@@ -218,7 +217,8 @@ def runGame():
         print(move)
 
         if move == "UP":
-            if(datetime.now() - lastRotated < 1):
+            print((datetime.now() - lastRotated).seconds)
+            if((datetime.now() - lastRotated).seconds > 1):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
