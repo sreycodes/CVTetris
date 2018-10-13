@@ -16,6 +16,8 @@ import time
 from collections import deque
 from datetime import datetime
 
+from AppKit import NSScreen
+
 cap = cv2.VideoCapture(0)
 greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
@@ -23,12 +25,17 @@ pts = deque(maxlen=12)
 direction = "ND"
 height = 320
 width = 600
+height = int(NSScreen.mainScreen().frame().size.height)
+width = int(NSScreen.mainScreen().frame().size.width)
+
 
 FPS = 25
 WINDOWWIDTH_TOTAL = 480
 WINDOWWIDTH_TETRIS = 300
+WINDOWWIDTH_TETRIS = 280
 WINDOWWIDTH_SIDE = WINDOWWIDTH_TOTAL-WINDOWWIDTH_TETRIS
 WINDOWHEIGHT = 600
+WINDOWHEIGHT = 520
 CELLSIZE = 20
 assert WINDOWWIDTH_TETRIS % CELLSIZE == 0, "Window width must be a multiple of cell size."
 assert WINDOWHEIGHT % CELLSIZE == 0, "Window height must be a multiple of cell size."
@@ -211,22 +218,26 @@ def runGame():
             speedFactor = 100
         else:
             speedFactor = 1
+            speedFactor = 3
 
         move = find_move([x, y])
         print(move)
 
         if move == "UP":
+            speedUp = False
             print((datetime.now() - lastRotated).seconds)
+            if((datetime.now() - lastRotated).seconds > 1):
             if((datetime.now() - lastRotated).seconds > 0.5):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
             movePieceLeft = True
+            speedUp = False
         elif move == "RIGHT":
             movePieceRight = True
+            speedUp = False
         elif move == "DOWN":
             speedUp = True
-            # FPSCLOCK.tick(FPS*10)
         else:
             movePieceLeft = False
             movePieceRight = False
@@ -271,9 +282,9 @@ def runGame():
         drawPieceOrPile(pile)
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
-
-        time.sleep(0.2)
-
+        if(not speedUp):
+            time.sleep(0.2)
+        
         # if key == ord("E"):
         #     break
 
