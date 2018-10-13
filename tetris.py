@@ -217,18 +217,21 @@ def runGame():
         print(move)
 
         if move == "UP":
+            speedUp = False
             print((datetime.now() - lastRotated).seconds)
             if((datetime.now() - lastRotated).seconds > 1):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
             movePieceLeft = True
+            speedUp = False
         elif move == "RIGHT":
             movePieceRight = True
+            speedUp = False
         elif move == "DOWN":
             speedUp = True
-            FPSCLOCK.tick(FPS*10)
-        else:
+            #FPSCLOCK.tick(FPS*speedFactor)
+        else:  
             movePieceLeft = False
             movePieceRight = False
             speedUp = False
@@ -273,7 +276,9 @@ def runGame():
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
 
-        time.sleep(0.2)
+        if(not speedUp):
+            time.sleep(0.2)
+        
 
         # if key == ord("E"):
         #     break
