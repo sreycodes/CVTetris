@@ -16,6 +16,7 @@ import time
 from collections import deque
 from datetime import datetime
 
+from AppKit import NSScreen
 
 cap = cv2.VideoCapture(0)
 greenLower = (29, 86, 6)
@@ -24,12 +25,17 @@ pts = deque(maxlen=12)
 direction = "ND"
 height = 320
 width = 600
+height = int(NSScreen.mainScreen().frame().size.height)
+width = int(NSScreen.mainScreen().frame().size.width)
+
 
 FPS = 25
 WINDOWWIDTH_TOTAL = 480
 WINDOWWIDTH_TETRIS = 300
+WINDOWWIDTH_TETRIS = 280
 WINDOWWIDTH_SIDE = WINDOWWIDTH_TOTAL-WINDOWWIDTH_TETRIS
 WINDOWHEIGHT = 600
+WINDOWHEIGHT = 520
 CELLSIZE = 20
 assert WINDOWWIDTH_TETRIS % CELLSIZE == 0, "Window width must be a multiple of cell size."
 assert WINDOWHEIGHT % CELLSIZE == 0, "Window height must be a multiple of cell size."
@@ -212,6 +218,7 @@ def runGame():
             speedFactor = 100
         else:
             speedFactor = 1
+            speedFactor = 3
 
         move = find_move([x, y])
         print(move)
@@ -220,6 +227,7 @@ def runGame():
             speedUp = False
             print((datetime.now() - lastRotated).seconds)
             if((datetime.now() - lastRotated).seconds > 1):
+            if((datetime.now() - lastRotated).seconds > 0.5):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
@@ -230,8 +238,16 @@ def runGame():
             speedUp = False
         elif move == "DOWN":
             speedUp = True
+<<<<<<< HEAD
             #FPSCLOCK.tick(FPS*speedFactor)
         else:  
+=======
+            # count = 4
+            # while count >=1:
+            #     FPSCLOCK.tick(FPS*10)
+            #     count -= 1
+        else:
+>>>>>>> b9ebb747e67c3a23a3cd304064979ecba0c024d3
             movePieceLeft = False
             movePieceRight = False
             speedUp = False
@@ -275,10 +291,17 @@ def runGame():
         drawPieceOrPile(pile)
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
+<<<<<<< HEAD
 
         if(not speedUp):
             time.sleep(0.2)
         
+=======
+        # if move != "DOWN":
+        time.sleep(0.15)
+        # else: 
+        #     time.sleep(0.1)
+>>>>>>> b9ebb747e67c3a23a3cd304064979ecba0c024d3
 
         # if key == ord("E"):
         #     break
