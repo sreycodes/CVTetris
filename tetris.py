@@ -218,7 +218,7 @@ def runGame():
 
         if move == "UP":
             print((datetime.now() - lastRotated).seconds)
-            if((datetime.now() - lastRotated).seconds > 1):
+            if((datetime.now() - lastRotated).seconds > 0.5):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
