@@ -81,13 +81,17 @@ DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
 
-PIVOT = CURRENTPIECE = 0
-NEXTPIECE = 1
+PIVOT = CURRENTPIECE1 = CURRENTPIECE2 = 0
+NEXTPIECE1 = NEXTPIECE2 = 1
 
-CURRENTPIECE_STARTX = int(CELLWIDTH_TETRIS/2)
-CURRENTPIECE_STARTY = 1
-NEXTPIECE_STARTX = 19 ## requires tweaking if window dimensions are changed
-NEXTPIECE_STARTY = 6 ## requires tweaking if window dimensions are changed
+CURRENTPIECE_STARTX1 = int(CELLWIDTH_TETRIS/4)
+CURRENTPIECE_STARTY1 = 1
+CURRENTPIECE_STARTX2 = int(CELLWIDTH_TETRIS/2)
+CURRENTPIECE_STARTY2 = 1
+NEXTPIECE_STARTX1 = 10 ## requires tweaking if window dimensions are changed
+NEXTPIECE_STARTY1 = 6 ## requires tweaking if window dimensions are changed
+NEXTPIECE_STARTX2 = 30 ## requires tweaking if window dimensions are changed
+NEXTPIECE_STARTY2 = 6 ## requires tweaking if window dimensions are changed
 
 def find_move(coords):
     '''Calculates the direction of motion
@@ -142,19 +146,30 @@ def runGame():
 
     pieces = [[],[]]
 
-    currentPieceShape, currentPieceColors = generatePiece()
-    nextPieceShape, nextPieceColors = generatePiece()
-    pieces[CURRENTPIECE] = placePiece(currentPieceShape, currentPieceColors, CURRENTPIECE_STARTX, CURRENTPIECE_STARTY)
-    pieces[NEXTPIECE] = placePiece(nextPieceShape, nextPieceColors, NEXTPIECE_STARTX, NEXTPIECE_STARTY)
+    speedFactor = 3
+
+    currentPieceShape1, currentPieceColors1 = generatePiece()
+    currentPieceShape2, currentPieceColors2 = generatePiece()
+    nextPieceShape1, nextPieceColors1 = generatePiece()
+    nextPieceShape2, nextPieceColors2 = generatePiece()
+    pieces[CURRENTPIECE1] = placePiece(currentPieceShape1, currentPieceColors1, CURRENTPIECE_STARTX1, CURRENTPIECE_STARTY1)
+    pieces[CURRENTPIECE2] = placePiece(currentPieceShape2, currentPieceColors2, CURRENTPIECE_STARTX2, CURRENTPIECE_STARTY2)
+    pieces[NEXTPIECE1] = placePiece(nextPieceShape1, nextPieceColors1, NEXTPIECE_STARTX1, NEXTPIECE_STARTY1)
+    pieces[NEXTPIECE2] = placePiece(nextPieceShape2, nextPieceColors2, NEXTPIECE_STARTX2, NEXTPIECE_STARTY2)
 
     pile = []
-    pieceMoveCounter = 0
+    pieceMoveCounter1 = 0
+    pieceMoveCounter2 = 0
     totalScore = 0
 
-    movePieceLeft = False
-    movePieceRight = False
-    speedUp = False
-    lastRotated = datetime.now()
+    movePieceLeft1 = False
+    movePieceRight1 = False
+    movePieceLeft2 = False
+    movePieceRight2 = False
+    speedUp1 = 1
+    speedUp2 = 1
+    lastRotated1 = datetime.now()
+    lastRotated2 = datetime.now()
 
     while True: 
 
@@ -193,53 +208,81 @@ def runGame():
 
         # print("Works 4")
 
-        pieceMoveCounter += 1
+        pieceMoveCounter1 += 1
+        pieceMoveCounter2 += 1
 
-        if pieceMoveCounter % 3 == 0 and (pieceHitBottom(pieces[CURRENTPIECE]) or pieceHitPileFromTop(pieces[CURRENTPIECE], pile)):
-            addPieceToPile(pieces[CURRENTPIECE], pile)
-            currentPieceShape, currentPieceColors = nextPieceShape, nextPieceColors
-            pieces[CURRENTPIECE] = placePiece(currentPieceShape, currentPieceColors, CURRENTPIECE_STARTX, CURRENTPIECE_STARTY)
-            nextPieceShape, nextPieceColors = generatePiece()
-            pieces[NEXTPIECE] = placePiece(nextPieceShape, nextPieceColors, NEXTPIECE_STARTX, NEXTPIECE_STARTY)
-            pieceMoveCounter = 0
-        elif pieceMoveCounter % 4 == 0: 
-            movePiece(pieces[CURRENTPIECE], DOWN) 
-            pieceMoveCounter = 0
+        if pieceMoveCounter1 % 3 == 0 and (pieceHitBottom(pieces[CURRENTPIECE1]) or pieceHitPileFromTop(pieces[CURRENTPIECE1], pile, pieces[CURRENTPIECE2])):
+            addPieceToPile(pieces[CURRENTPIECE1], pile)
+            currentPieceShape1, currentPieceColors1 = nextPieceShape1, nextPieceColors1
+            pieces[CURRENTPIECE1] = placePiece(currentPieceShape1, currentPieceColors1, CURRENTPIECE_STARTX1, CURRENTPIECE_STARTY1)
+            nextPieceShape1, nextPieceColors1 = generatePiece()
+            pieces[NEXTPIECE1] = placePiece(nextPieceShape1, nextPieceColors1, NEXTPIECE_STARTX1, NEXTPIECE_STARTY1)
+            pieceMoveCounter1 = 0
+        elif pieceMoveCounter1 % 4 == 0: 
+            movePiece(pieces[CURRENTPIECE1], DOWN, speedUp1) 
+            pieceMoveCounter1 = 0
 
-        if movePieceLeft and pieceHitSide(pieces[CURRENTPIECE]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces[CURRENTPIECE], pile):
-            movePiece(pieces[CURRENTPIECE], LEFT)
+        if movePieceLeft1 and pieceHitSide(pieces[CURRENTPIECE1]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces[CURRENTPIECE1], pile, pieces[CURRENTPIECE2]):
+            movePiece(pieces[CURRENTPIECE1], LEFT, 1)
 
-        if movePieceRight and pieceHitSide(pieces[CURRENTPIECE]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces[CURRENTPIECE], pile):
-            movePiece(pieces[CURRENTPIECE], RIGHT)
+        if movePieceRight1 and pieceHitSide(pieces[CURRENTPIECE1]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces[CURRENTPIECE1], pile, pieces[CURRENTPIECE2]):
+            movePiece(pieces[CURRENTPIECE1], RIGHT, 1)
 
-        if speedUp:
-            speedFactor = 100
+        if pieceMoveCounter2 % 3 == 0 and (pieceHitBottom(pieces[CURRENTPIECE2]) or pieceHitPileFromTop(pieces[CURRENTPIECE2], pile, pieces[CURRENTPIECE1])):
+            addPieceToPile(pieces[CURRENTPIECE2], pile)
+            currentPieceShape2, currentPieceColors2 = nextPieceShape2, nextPieceColors2
+            pieces[CURRENTPIECE2] = placePiece(currentPieceShape2, currentPieceColors2, CURRENTPIECE_STARTX2, CURRENTPIECE_STARTY2)
+            nextPieceShape2, nextPieceColors2 = generatePiece()
+            pieces[NEXTPIECE2] = placePiece(nextPieceShape2, nextPieceColors2, NEXTPIECE_STARTX2, NEXTPIECE_STARTY2)
+            pieceMoveCounter2 = 0
+        elif pieceMoveCounter2 % 4 == 0: 
+            movePiece(pieces[CURRENTPIECE2], DOWN, speedUp2) 
+            pieceMoveCounter2 = 0
+
+        if movePieceLeft2 and pieceHitSide(pieces[CURRENTPIECE2]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces[CURRENTPIECE2], pile, pieces[CURRENTPIECE1]):
+            movePiece(pieces[CURRENTPIECE2], LEFT, 1)
+
+        if movePieceRight2 and pieceHitSide(pieces[CURRENTPIECE2]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces[CURRENTPIECE2], pile, pieces[CURRENTPIECE1]):
+            movePiece(pieces[CURRENTPIECE2], RIGHT, 1)
+
+        move1 = find_move([x, y])
+        print(move1)
+
+        if move1 == "UP":
+            speedUp1 = 1
+            if((datetime.now() - lastRotated1).seconds > 0.5):
+                pieces[CURRENTPIECE1] = rotatePiece(pieces[CURRENTPIECE1], pile)
+                lastRotated1 = datetime.now()
+        elif move1 == "LEFT":
+            movePieceLeft1 = True
+            speedUp1 = 1
+        elif move1 == "RIGHT":
+            movePieceRight1 = True
+            speedUp1 = 1
+        elif move1 == "DOWN":
+            speedUp1 = 2
         else:
-            speedFactor = 1
-            speedFactor = 3
+            movePieceLeft1 = False
+            movePieceRight1 = False
+            speedUp1 = 1
 
-        move = find_move([x, y])
-        print(move)
-
-        if move == "UP":
-            speedUp = False
-            print((datetime.now() - lastRotated).seconds)
-            if((datetime.now() - lastRotated).seconds > 1):
-            if((datetime.now() - lastRotated).seconds > 0.5):
-                pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
-                lastRotated = datetime.now()
-        elif move == "LEFT":
-            movePieceLeft = True
-            speedUp = False
-        elif move == "RIGHT":
-            movePieceRight = True
-            speedUp = False
-        elif move == "DOWN":
-            speedUp = True
-        else:
-            movePieceLeft = False
-            movePieceRight = False
-            speedUp = False
+        # if move2 == "UP":
+        #     speedUp2 = 1
+        #     if((datetime.now() - lastRotated2).seconds > 0.5):
+        #         pieces[CURRENTPIECE2] = rotatePiece(pieces[CURRENTPIECE2], pile)
+        #         lastRotated2 = datetime.now()
+        # elif move2 == "LEFT":
+        #     movePieceLeft2 = True
+        #     speedUp2 = 1
+        # elif move2 == "RIGHT":
+        #     movePieceRight2 = True
+        #     speedUp2 = 1
+        # elif move2 == "DOWN":
+        #     speedUp2 = 2
+        # else:
+        #     movePieceLeft2 = False
+        #     movePieceRight2 = False
+        #     speedUp2 = 1
 
         # for event in pygame.event.get(): 
         #     if event.type == QUIT:
@@ -268,20 +311,21 @@ def runGame():
         totalScore += score
         moveRows(fullRowYs, pile)
         
-        if gameLose(pieces[CURRENTPIECE], pile):
+        if gameLose(pieces[CURRENTPIECE1], pile) or gameLose(pieces[CURRENTPIECE2], pile):
             break
 
         DISPLAYSURF.fill(BGCOLOR)
         drawSideWindow()
         drawScore(totalScore)
         drawGrid(0, WINDOWWIDTH_TETRIS, 0, WINDOWHEIGHT)
-        drawPieceOrPile(pieces[CURRENTPIECE])
-        drawPieceOrPile(pieces[NEXTPIECE])
+        drawPieceOrPile(pieces[CURRENTPIECE1])
+        drawPieceOrPile(pieces[NEXTPIECE1])
+        drawPieceOrPile(pieces[CURRENTPIECE2])
+        drawPieceOrPile(pieces[NEXTPIECE2])
         drawPieceOrPile(pile)
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
-        if(not speedUp):
-            time.sleep(0.2)
+        time.sleep(0.2)
         
         # if key == ord("E"):
         #     break
@@ -368,22 +412,22 @@ def placePiece(pieceShape, pieceColors, startx, starty):
                     
     return piece
 
-def movePiece(piece, direction):
+def movePiece(piece, direction, speed):
 
     # move piece one cell in specified direction
 
     if direction == UP:
         for i in range(len(piece)):
-            piece[i]['y'] -= 1
+            piece[i]['y'] -= speed
     if direction == DOWN:
         for i in range(len(piece)):
-            piece[i]['y'] += 1
+            piece[i]['y'] += speed
     if direction == LEFT:
         for i in range(len(piece)):
-            piece[i]['x'] -= 1
+            piece[i]['x'] -= speed
     if direction == RIGHT:
         for i in range(len(piece)):
-            piece[i]['x'] += 1
+            piece[i]['x'] += speed
 
     return piece
 
@@ -464,39 +508,51 @@ def addPieceToPile(piece, pile):
     for block in piece:
         pile.append(block)
 
-def pieceHitPileFromTop(piece, pile):
+def pieceHitPileFromTop(piece, pile, otherPiece):
 
     # check if piece has collided with pile from top
 
+    new_pile = pile
+    for block in otherPiece:
+        new_pile += [block]
+
     for pieceBlock in piece:
         pieceBlockRect = pygame.Rect(pieceBlock['x']*CELLSIZE, pieceBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
-        for pileBlock in pile:
+        for pileBlock in new_pile:
             pileBlockRect = pygame.Rect(pileBlock['x']*CELLSIZE, pileBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
             if pieceBlockRect.right == pileBlockRect.right and pieceBlockRect.left == pileBlockRect.left and pieceBlockRect.bottom == pileBlockRect.top:
                 return True
 
-    return False
+    return False 
 
-def pieceHitPileFromLeft(piece, pile):
+def pieceHitPileFromLeft(piece, pile, otherPiece):
 
     # check if piece has collided with pile from left
 
+    new_pile = pile
+    for block in otherPiece:
+        new_pile += [block]
+
     for pieceBlock in piece:
         pieceBlockRect = pygame.Rect(pieceBlock['x']*CELLSIZE, pieceBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
-        for pileBlock in pile:
+        for pileBlock in new_pile:
             pileBlockRect = pygame.Rect(pileBlock['x']*CELLSIZE, pileBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
             if pieceBlockRect.bottom == pileBlockRect.bottom and pieceBlockRect.top == pileBlockRect.top and pieceBlockRect.right == pileBlockRect.left:
                 return True
 
     return False
 
-def pieceHitPileFromRight(piece, pile):
+def pieceHitPileFromRight(piece, pile, otherPiece):
 
     # check if piece has collided with pile from right
 
+    new_pile = pile
+    for block in otherPiece:
+        new_pile += [block]
+
     for pieceBlock in piece:
         pieceBlockRect = pygame.Rect(pieceBlock['x']*CELLSIZE, pieceBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
-        for pileBlock in pile:
+        for pileBlock in new_pile:
             pileBlockRect = pygame.Rect(pileBlock['x']*CELLSIZE, pileBlock['y']*CELLSIZE, CELLSIZE, CELLSIZE)
             if pieceBlockRect.bottom == pileBlockRect.bottom and pieceBlockRect.top == pileBlockRect.top and pieceBlockRect.left == pileBlockRect.right:
                 return True
