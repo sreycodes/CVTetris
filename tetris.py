@@ -31,15 +31,9 @@ width = int(NSScreen.mainScreen().frame().size.width)
 
 FPS = 25
 WINDOWWIDTH_TOTAL = 480
-<<<<<<< HEAD
-#WINDOWWIDTH_TETRIS = 300
+
 WINDOWWIDTH_TETRIS = 280
 WINDOWWIDTH_SIDE = WINDOWWIDTH_TOTAL-WINDOWWIDTH_TETRIS
-#WINDOWHEIGHT = 600
-=======
-WINDOWWIDTH_TETRIS = 280
-WINDOWWIDTH_SIDE = WINDOWWIDTH_TOTAL-WINDOWWIDTH_TETRIS
->>>>>>> 62455c994a433d88df30217eeca913b7b44da32e
 WINDOWHEIGHT = 520
 CELLSIZE = 20
 assert WINDOWWIDTH_TETRIS % CELLSIZE == 0, "Window width must be a multiple of cell size."
@@ -170,13 +164,13 @@ def runGame():
         frame = cv2.flip(frame, 1)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, greenLower, greenUpper)
-        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.erode(mask, None, iterations=1)
         mask = cv2.dilate(mask, None, iterations=2)
         radius = -1
         x, y = width / 2, height / 2
 
         cv2.imshow("Frame", frame)
-        key = cv2.waitKey(2) & 0xFF
+        key = cv2.waitKey(1) & 0xFF
 
         # print("Works 1")
 
@@ -222,8 +216,7 @@ def runGame():
         if speedUp:
             speedFactor = 100
         else:
-            speedFactor = 1
-            # speedFactor = 3
+            speedFactor = 3
 
         move = find_move([x, y])
         print(move)
@@ -231,7 +224,7 @@ def runGame():
         if move == "UP":
             speedUp = False
             print((datetime.now() - lastRotated).seconds)
-            if((datetime.now() - lastRotated).seconds > 1):
+            if((datetime.now() - lastRotated).seconds > 0.5):
                 pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
