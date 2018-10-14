@@ -15,8 +15,14 @@ import imutils
 import time
 from collections import deque
 from datetime import datetime
-
+# ---- for mac users ----
 from AppKit import NSScreen
+height = int(NSScreen.mainScreen().frame().size.height)
+width = int(NSScreen.mainScreen().frame().size.width)
+# --- for windows users -----  
+# from win32api import GetSystemMetrics
+# height = GetSystemMetrics(1)
+# width = GetSystemMetrics(0)
 
 cap = cv2.VideoCapture(0)
 greenLower = (29, 86, 6)
