@@ -91,10 +91,13 @@ RIGHT = 'right'
 PIVOT = CURRENTPIECE = 0
 NEXTPIECE = 1
 
-CURRENTPIECE_STARTX = int(CELLWIDTH_TETRIS/2)
+CURRENTPIECE_STARTX1 = int(CELLWIDTH_TETRIS/6)
+CURRENTPIECE_STARTX2 = int(CELLWIDTH_TETRIS/2)
 CURRENTPIECE_STARTY = 1
+
 NEXTPIECE_STARTX = 19 ## requires tweaking if window dimensions are changed
-NEXTPIECE_STARTY = 6 ## requires tweaking if window dimensions are changed
+NEXTPIECE_STARTY1 = 6 ## requires tweaking if window dimensions are changed
+NEXTPIECE_STARTY2 = 10 ## requires tweaking if window dimensions are changed
 
 def find_move(coords):
     '''Calculates the direction of motion
@@ -147,13 +150,16 @@ def runGame():
 
     # print("Works 5")
 
-    pieces = [[],[]]
-
-    currentPieceShape, currentPieceColors = generatePiece()
-    nextPieceShape, nextPieceColors = generatePiece()
-    pieces[CURRENTPIECE] = placePiece(currentPieceShape, currentPieceColors, CURRENTPIECE_STARTX, CURRENTPIECE_STARTY)
-    pieces[NEXTPIECE] = placePiece(nextPieceShape, nextPieceColors, NEXTPIECE_STARTX, NEXTPIECE_STARTY)
-
+    pieces1 = [[],[]]
+    pieces2 = [[],[]]
+    currentPieceShape1, currentPieceColors1 = generatePiece()
+    nextPieceShape1, nextPieceColors1 = generatePiece()
+    currentPieceShape2, currentPieceColors2 = generatePiece()
+    nextPieceShape2, nextPieceColors2 = generatePiece()
+    pieces1[CURRENTPIECE] = placePiece(currentPieceShape1, currentPieceColors1, CURRENTPIECE_STARTX1, CURRENTPIECE_STARTY)
+    pieces1[NEXTPIECE] = placePiece(nextPieceShape1, nextPieceColors1, NEXTPIECE_STARTX, NEXTPIECE_STARTY1)
+    pieces2[CURRENTPIECE] = placePiece(currentPieceShape2, currentPieceColors2, CURRENTPIECE_STARTX2, CURRENTPIECE_STARTY)
+    pieces2[NEXTPIECE] = placePiece(nextPieceShape2, nextPieceColors2, NEXTPIECE_STARTX, NEXTPIECE_STARTY2)
     pile = []
     pieceMoveCounter = 0
     totalScore = 0
@@ -202,22 +208,37 @@ def runGame():
 
         pieceMoveCounter += 1
 
-        if pieceMoveCounter % 3 == 0 and (pieceHitBottom(pieces[CURRENTPIECE]) or pieceHitPileFromTop(pieces[CURRENTPIECE], pile)):
-            addPieceToPile(pieces[CURRENTPIECE], pile)
-            currentPieceShape, currentPieceColors = nextPieceShape, nextPieceColors
-            pieces[CURRENTPIECE] = placePiece(currentPieceShape, currentPieceColors, CURRENTPIECE_STARTX, CURRENTPIECE_STARTY)
-            nextPieceShape, nextPieceColors = generatePiece()
-            pieces[NEXTPIECE] = placePiece(nextPieceShape, nextPieceColors, NEXTPIECE_STARTX, NEXTPIECE_STARTY)
-            pieceMoveCounter = 0
+        if pieceMoveCounter % 3 == 0:
+            if (pieceHitBottom(pieces1[CURRENTPIECE]) or pieceHitPileFromTop(pieces2[CURRENTPIECE], pile) and pieceHitBottom(pieces2[CURRENTPIECE]) or pieceHitPileFromTop(pieces2[CURRENTPIECE], pile)):
+                addPieceToPile(pieces1[CURRENTPIECE], pile)
+                currentPieceShape1, currentPieceColors1 = nextPieceShape1, nextPieceColors1
+                pieces1[CURRENTPIECE] = placePiece(currentPieceShape1, currentPieceColors1, CURRENTPIECE_STARTX1, CURRENTPIECE_STARTY)
+                nextPieceShape1, nextPieceColors1 = generatePiece()
+                pieces1[NEXTPIECE] = placePiece(nextPieceShape1, nextPieceColors1, NEXTPIECE_STARTX, NEXTPIECE_STARTY1)  
+                pieceMoveCounter = 0
+            # if (pieceHitBottom(pieces1[CURRENTPIECE]) or pieceHitPileFromTop(pieces1[CURRENTPIECE], pile)):
+                addPieceToPile(pieces2[CURRENTPIECE], pile)
+                currentPieceShape2, currentPieceColors2 = nextPieceShape2, nextPieceColors2
+                pieces2[CURRENTPIECE] = placePiece(currentPieceShape2, currentPieceColors2, CURRENTPIECE_STARTX2, CURRENTPIECE_STARTY)
+                nextPieceShape2, nextPieceColors2 = generatePiece()
+                pieces2[NEXTPIECE] = placePiece(nextPieceShape2, nextPieceColors2, NEXTPIECE_STARTX, NEXTPIECE_STARTY2)
+                pieceMoveCounter = 0
         elif pieceMoveCounter % 4 == 0: 
-            movePiece(pieces[CURRENTPIECE], DOWN) 
+            movePiece(pieces1[CURRENTPIECE], DOWN)
+            movePiece(pieces2[CURRENTPIECE], DOWN)  
             pieceMoveCounter = 0
 
-        if movePieceLeft and pieceHitSide(pieces[CURRENTPIECE]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces[CURRENTPIECE], pile):
-            movePiece(pieces[CURRENTPIECE], LEFT)
+        if movePieceLeft:
+            if pieceHitSide(pieces1[CURRENTPIECE]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces1[CURRENTPIECE], pile) and pieceHitSide(pieces2[CURRENTPIECE]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces2[CURRENTPIECE], pile):
+                movePiece(pieces1[CURRENTPIECE], LEFT)
+            # if pieceHitSide(pieces2[CURRENTPIECE]) != 'LEFT WALL' and not pieceHitPileFromRight(pieces2[CURRENTPIECE], pile):  
+                movePiece(pieces2[CURRENTPIECE], LEFT)
 
-        if movePieceRight and pieceHitSide(pieces[CURRENTPIECE]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces[CURRENTPIECE], pile):
-            movePiece(pieces[CURRENTPIECE], RIGHT)
+        if movePieceRight:
+            if pieceHitSide(pieces1[CURRENTPIECE]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces1[CURRENTPIECE], pile) and pieceHitSide(pieces2[CURRENTPIECE]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces2[CURRENTPIECE], pile):
+                movePiece(pieces1[CURRENTPIECE], RIGHT)
+            # if pieceHitSide(pieces1[CURRENTPIECE]) != 'RIGHT WALL' and not pieceHitPileFromLeft(pieces1[CURRENTPIECE], pile):
+                movePiece(pieces2[CURRENTPIECE], RIGHT)
 
         if speedUp:
             speedFactor = 100
@@ -229,9 +250,10 @@ def runGame():
 
         if move == "UP":
             speedUp = False
-            print((datetime.now() - lastRotated).seconds)
+            # print((datetime.now() - lastRotated).seconds)
             if((datetime.now() - lastRotated).seconds > 0.5):
-                pieces[CURRENTPIECE] = rotatePiece(pieces[CURRENTPIECE], pile)
+                pieces1[CURRENTPIECE] = rotatePiece(pieces1[CURRENTPIECE], pile)
+                pieces2[CURRENTPIECE] = rotatePiece(pieces2[CURRENTPIECE], pile)
                 lastRotated = datetime.now()
         elif move == "LEFT":
             movePieceLeft = True
@@ -273,15 +295,19 @@ def runGame():
         totalScore += score
         moveRows(fullRowYs, pile)
         
-        if gameLose(pieces[CURRENTPIECE], pile):
+        if gameLose(pieces1[CURRENTPIECE], pile):
+            break
+        if gameLose(pieces2[CURRENTPIECE], pile):
             break
 
         DISPLAYSURF.fill(BGCOLOR)
         drawSideWindow()
         drawScore(totalScore)
         drawGrid(0, WINDOWWIDTH_TETRIS, 0, WINDOWHEIGHT)
-        drawPieceOrPile(pieces[CURRENTPIECE])
-        drawPieceOrPile(pieces[NEXTPIECE])
+        drawPieceOrPile(pieces1[CURRENTPIECE])
+        drawPieceOrPile(pieces1[NEXTPIECE])
+        drawPieceOrPile(pieces2[CURRENTPIECE])
+        drawPieceOrPile(pieces2[NEXTPIECE])
         drawPieceOrPile(pile)
         pygame.display.update()
         FPSCLOCK.tick(FPS*speedFactor)
