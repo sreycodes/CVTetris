@@ -23,8 +23,18 @@ Most directions of the game are retained, differing in the fact how the moves ar
 # Tech Used:
 
 1. OpenCV: lbrary used to implement real-time Computer Vision. Used to detect the green object and its motion by the user.
-2. Imutils: used to make basic image processing operations such as to resize the frame.
+2. Imutils: used to make basic image processing operations in conjuction with OpenCV
 3. PyGame: python module to design game including computer graphics and background music.
 4. Python: the underlaying programming language in which the entire logic of the game was coded.
+
+# How to Play:
+
+```
+pip install -r requirements.txt
+python tetris.py
+```
+Tried and tested on mac
+
+
 
 
