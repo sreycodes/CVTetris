@@ -1,6 +1,6 @@
 # CVTetris
 
-A cooler version of the Tetris game which allows the user to control the falling tiles using hand motion. It retains the classical game entertainment but now encouraging users to be on the 'move' as they relish the game! Check out our video and submission (here)[https://devpost.com/software/cvtetris]
+A cooler version of the Tetris game which allows the user to control the falling tiles using hand motion. It retains the classical game entertainment but now encouraging users to be on the 'move' as they relish the game! Check out our video and submission [here](https://devpost.com/software/cvtetris)
 
 # Motivation:
 
